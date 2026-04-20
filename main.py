@@ -1,6 +1,17 @@
+import ctypes
+
+import copy
+import time
+import random
 import pygame
 from pygame._sdl2 import Window
+pygame.mixer.init()
 
+# Tells Windows to treat the app as DPI aware (Fixes blurriness)
+try:
+    ctypes.windll.user32.SetProcessDPIAware()
+except AttributeError:
+    pass # Non-Windows platforms
 
 def load_spritesheet(filename, tile_width, tile_height):
     spritesheet = pygame.image.load(filename).convert_alpha()
@@ -27,14 +38,38 @@ levels = [
             "#     #",
             "#######",
         ],
+    ],
+    [
+        [3, 0, 0],
+        [
+            "#######",
+            "##  * #",
+            "#   # #",
+            "#  ## #",
+            "#     #",
+            "#  @  #",
+            "# @@@ #",
+            "#  @  #",
+            "#     #",
+            "#######",
+        ],
+    ],
+    [
+        [3, 0, 0],
+        [
+            "###########",
+            "#  # *    #",
+            "# ## ### ##",
+            "#  #   #  #",
+            "## ## ### #",
+            "#     ##  #",
+            "# @@  #   #",
+            "#@@@@ # @@#",
+            "##@@ ##   #",
+            "###########",
+        ],
     ]
 ]
-
-for i, level in enumerate(levels):
-    levels[i][1] = [list(row) for row in level[1]]
-
-level_num = 0
-level = levels[level_num]
 
 TILE_WALL = "#"
 TILE_FLOOR = " "
@@ -77,9 +112,40 @@ TILEID_GRASS = 36
 TILEID_MOUNTAIN = 37
 TILEID_WATER = 38
 TILEID_EXPLOSION = 39
+
 TILEID_GOAL = 44
 TILEID_PLACEABLE = 45
+TILEID_LOCK = 46
+TILEID_COMPLETED = 47
+TILEID_DARKGRASS = 52
 
+TILECOLLECTION_SHEEP = [TILEID_SHEEP, TILEID_RAM, TILEID_SHEEP_BUOY]
+TILECOLLECTION_DIRECTIONS = {
+    (-1, 0): TILEID_OFFSET_LEFT,
+    (1, 0): TILEID_OFFSET_RIGHT,
+    (0, -1): TILEID_OFFSET_UP,
+    (0, 1): TILEID_OFFSET_DOWN
+}
+
+# UP_LEFT_RIGHT_DOWN
+TILECOLLECTION_WALL = {
+    "[0, 0, 0, 0]": TILEID_WALL_,
+    "[0, 0, 0, 1]": TILEID_WALL_DOWN,
+    "[0, 0, 1, 0]": TILEID_WALL_RIGHT,
+    "[0, 0, 1, 1]": TILEID_WALL_RIGHT_DOWN,
+    "[0, 1, 0, 0]": TILEID_WALL_LEFT,
+    "[0, 1, 0, 1]": TILEID_WALL_LEFT_DOWN,
+    "[0, 1, 1, 0]": TILEID_WALL_LEFT_RIGHT,
+    "[0, 1, 1, 1]": TILEID_WALL_LEFT_RIGHT_DOWN,
+    "[1, 0, 0, 0]": TILEID_WALL_UP,
+    "[1, 0, 0, 1]": TILEID_WALL_UP_DOWN,
+    "[1, 0, 1, 0]": TILEID_WALL_UP_RIGHT,
+    "[1, 0, 1, 1]": TILEID_WALL_UP_RIGHT_DOWN,
+    "[1, 1, 0, 0]": TILEID_WALL_UP_LEFT,
+    "[1, 1, 0, 1]": TILEID_WALL_UP_LEFT_DOWN,
+    "[1, 1, 1, 0]": TILEID_WALL_UP_LEFT_RIGHT,
+    "[1, 1, 1, 1]": TILEID_WALL_UP_LEFT_RIGHT_DOWN,
+} 
 TILE_MAP = {
     TILE_FLOOR: TILEID_GRASS,
     TILE_WALL: TILEID_WALL_LEFT_RIGHT,
@@ -88,48 +154,261 @@ TILE_MAP = {
     TILE_WATER: TILEID_WATER,
 }
 
+CLICKABLE_COLOR = (20, 180, 20)
+UNCLICKABLE_COLOR = (180, 20, 20)
+PRESSED_COLOR = (160, 160, 160)
+UNPRESSED_COLOR = (200, 200, 200)
+HOVER_COLOR_OFFSET = (-10, -10, -10)
+DOWNPRESS_COLOR_OFFSET = (-25, -25, -25)
+
+for i, j in enumerate(levels):
+    levels[i][1] = [list(row) for row in j[1]]
+
+for i, j in enumerate(levels):
+    for y, row in enumerate(j[1]):
+        for x, tile in enumerate(row):
+            levels[i][1][y][x] = TILE_MAP[tile]
+
+for i, j in enumerate(levels):
+    for y, row in enumerate(j[1]):
+        for x, tile in enumerate(row):
+            if levels[i][1][y][x] in TILECOLLECTION_WALL.values():
+                possible_walls = [0, 0, 0, 0]
+                for j in range(4):
+                    # UP_LEFT_RIGHT_DOWN
+                    x_offset, y_offset = [(0, -1), (-1, 0), (1, 0), (0, 1)][j]
+                    index = (x + x_offset, y + y_offset)
+                    if index[0] == -1 or index[1] == -1:
+                        continue
+                    
+                    try:
+                        wall = levels[i][1][index[1]][index[0]]
+                    except IndexError: pass
+                    else:
+                        if wall in TILECOLLECTION_WALL.values():
+                            possible_walls[j] = 1
+
+                levels[i][1][y][x] = TILECOLLECTION_WALL[str(possible_walls)]
+
+
+level_num = 0
+
+SHEEP_SOUNDS = [
+    pygame.mixer.Sound("sheep1.mp3"),
+    pygame.mixer.Sound("sheep2.mp3"),
+    pygame.mixer.Sound("sheep3.mp3")
+]
+
+WIN_SOUND = pygame.mixer.Sound("win.mp3")
+CLICK_SOUND = pygame.mixer.Sound("click.mp3")
+IMPACT_SOUND = pygame.mixer.Sound("impact.mp3")
+IMPACT_SOUND.set_volume(2)
+music_queue = []
+
+level_interface_buttons = []
+for i in range(15):
+    w = 40
+    h = 40
+    x = i % 5
+    y = i // 5
+    x = (x * (w+20)) + w // 2
+    y = (y * (h+20)) + 60
+    level_interface_buttons.append((pygame.Rect(x, y, w, h), i + 1))
+
+unlocked_levels = 1
+
+
+
+HELP_TEXT = {
+    "intro": [
+        "Just click on the screen to start!"
+    ],
+#                                                |||||
+    "levels": [
+        "Press a level to begin!",
+        "After you complete a level, a green",
+        "checkmark will appear on it,",
+        "and the next level will be unlocked.",
+        "A lock symbol will appear on locked",
+        "levels."
+    ],
+#                                                |||||
+    "editing": [
+        "Press a sheep button to enable that",
+        "type of sheep. The button will become",
+        "darker after you enable it.",
+        "Press on a 'ghost' sheep to place your",
+        "selected sheep. Press on it again to",
+        "remove it. The number on the sheep",
+        "button represents how many more you",
+        "can place of that type of sheep.",
+        "Press Clear to clear all the sheep.",
+        "The Play button will become green and",
+        "pressable when: You place all the sheep",
+        "or there are no more 'ghost' sheep left."
+    ],
+#                                                |||||
+    "playing": [
+        "Use arrow keys to move all the sheep in",
+        "that direction.",
+        "Regular sheep can only move on grass.",
+        "Mountain sheep (the ones with the horns)",
+        "can only move on grass+mountains.",
+        "Lifevest sheep (the ones with the life",
+        "preservers) can only move on",
+        "grass+water.",
+        "Guide at least one sheep to the staff to",
+        "win!",
+        "Press the Stop button to edit the",
+        "formation again.",
+    ],
+#                                                |||||
+    "win": [
+        "You win! Congratulations!",
+        "You may have unlocked a new level!",
+        "Also the game will save your progress",
+        "automatically when you close the",
+        "application."
+    ]
+}
+
+def save_savestate():
+    with open("savestate.txt", "w") as f:
+        f.write(str(unlocked_levels))
+
+def load_savestate():
+    global unlocked_levels
+    try:
+        with open("savestate.txt", "r") as f:
+            unlocked_levels = int(f.read())
+    except (FileNotFoundError, ValueError):
+        save_savestate()
+
+def play_sheep_sound(sheep_number):
+    for i in range(sheep_number):
+        sound = random.choice(SHEEP_SOUNDS)
+        sound.set_volume(0.25 / sheep_number)
+        music_queue.append((sound, time.time() + (random.randint(0, 200)) / 1000))
+
+def play_click_sound():
+    CLICK_SOUND.play()
+
+def play_impact_sound():
+    IMPACT_SOUND.play()
+
+def play_win_sound():
+    WIN_SOUND.play()
+
+def get_sheep_type(tile_id):
+    sheep_type = (tile_id % 8) // 2
+    if sheep_type == 3:
+        sheep_type = 2
+    return sheep_type
+
+def button_color(rect, base_color):
+    color = base_color
+    if rect.collidepoint(mouse_pos):
+        color = (color[0] + HOVER_COLOR_OFFSET[0], color[1] + HOVER_COLOR_OFFSET[1], color[2] + HOVER_COLOR_OFFSET[2])
+        if mouse_down:
+            color = (color[0] + DOWNPRESS_COLOR_OFFSET[0], color[1] + DOWNPRESS_COLOR_OFFSET[1], color[2] + DOWNPRESS_COLOR_OFFSET[2])
+    return color
+
+def check_playable(level):
+    placeable_count = 0
+    for row in level[1]:
+        for tile in row:
+            if tile == TILEID_PLACEABLE:
+                placeable_count += 1
+    if placeable_count == 0 or sum(drawed_sheeps) == sum(level[0]):
+        return True
+    return False
+
+def draw_checkerboard_grass():
+    offset = ((levelPos[0] % 16) - 16,
+              (levelPos[1] % 16) - 16)
+    for y in range(0, 256, 16):
+        for x in range(0, 376, 16):
+            lightgrass = (((y // 16) % 2) == ((x // 16) % 2))
+            if not lightgrass:
+                screen.blit(tiles[TILEID_DARKGRASS], (x + offset[0], y + offset[1]))
+
 def draw_level(level):
     for y, row in enumerate(level[1]):
         for x, tile in enumerate(row):
-            tile_id = TILE_MAP.get(tile)
-            if tile_id is None:
+            pos = (levelPos[0] + x * 16, levelPos[1] + y * 16)
+            
+            if tile == TILEID_GRASS:
                 continue
-            screen.blit(tiles[tile_id], (levelPos[0] + x * 16, levelPos[1] + y * 16))
+            
+            hop_offset = 0
+            if 0 <= tile <= 31:
+                if sheep_hop_animation > time.time():
+                    hop_offset = TILEID_OFFSET_ANIMATION
+            
+                hop_offset = round(time.time() * 3) % 2
+            
+            screen.blit(tiles[tile + hop_offset], pos)
+
+def draw_help_button():
+    color = button_color(help_button, (255, 255, 255))
+    font_surface = font.render("?", False, (0, 0, 0))
+    pygame.draw.rect(screen, color, help_button, border_radius=5)
+    screen.blit(font_surface, (help_button.centerx - font_surface.get_width() // 2, help_button.centery - font_surface.get_height() // 2))
 
 def draw_ui():
-    global uiPlayButtonRect
-    
     font_surface = font.render(f"Level: {level_num + 1}", False, (255, 255, 255))
     screen.blit(font_surface, (screenRect.width // 2 - font_surface.get_width() // 2, 5))
     
     # draw sheep buttons to drag and drop
     if gameState == "editing":
-        for i, tile_id in enumerate([TILEID_SHEEP, TILEID_RAM, TILEID_SHEEP_BUOY]):
-            button_rect = pygame.Rect(5 + i * 45, 215, 40, 20)
-            pygame.draw.rect(screen, (200, 200, 200), button_rect, border_radius=5)
-            screen.blit(tiles[tile_id], (button_rect.x + ((button_rect.width-20) - tiles[tile_id].get_width()) // 2, button_rect.y + (button_rect.height - tiles[tile_id].get_height()) // 2))
+        for i, tile_id in enumerate(TILECOLLECTION_SHEEP):
+            color = UNPRESSED_COLOR
+            if sheep_button_pressed == i:
+                color = PRESSED_COLOR
+            color = button_color(sheep_buttons[i], color)
+            
+            pygame.draw.rect(screen, color, sheep_buttons[i], border_radius=5)
+            screen.blit(tiles[tile_id], (sheep_buttons[i].x + ((sheep_buttons[i].width-20) - tiles[tile_id].get_width()) // 2, sheep_buttons[i].y + (sheep_buttons[i].height - tiles[tile_id].get_height()) // 2))
 
-            color = (20, 20, 20)
-            if level[0][i] - drawed_sheeps <= 0:
-                color = (150, 50, 50)
+            color = CLICKABLE_COLOR
+            if level[0][i] - drawed_sheeps[i] <= 0:
+                color = UNCLICKABLE_COLOR
+            
+            if sheep_button_pressed == i:
+                color = (max(color[0] + DOWNPRESS_COLOR_OFFSET[0], 0), 
+                         max(color[1] + DOWNPRESS_COLOR_OFFSET[1], 0), 
+                         max(color[2] + DOWNPRESS_COLOR_OFFSET[2], 0))
 
-            font_surface = font.render(f"x{level[0][i] - drawed_sheeps}", False, color)
-            screen.blit(font_surface, (button_rect.x + button_rect.width - 20, button_rect.centery - font_surface.get_height() // 2))
+            font_surface = font.render(f"x{level[0][i] - drawed_sheeps[i]}", False, color)
+            screen.blit(font_surface, (sheep_buttons[i].x + sheep_buttons[i].width - 20, sheep_buttons[i].centery - font_surface.get_height() // 2))
+
+        # clear button
+        color = button_color(clear_button, UNPRESSED_COLOR)
+        pygame.draw.rect(screen, color, clear_button, border_radius=5)
+        font_surface = font.render("Clear", False, CLICKABLE_COLOR)
+        screen.blit(font_surface, (clear_button.x + (clear_button.width - font_surface.get_width()) // 2, clear_button.y + (clear_button.height - font_surface.get_height()) // 2))
+
+    # exit button
+    color = button_color(exit_button, UNPRESSED_COLOR)
+    pygame.draw.rect(screen, color, exit_button, border_radius=5)
+    font_surface = font.render("Exit", False, CLICKABLE_COLOR)
+    screen.blit(font_surface, (exit_button.x + (exit_button.width - font_surface.get_width()) // 2, exit_button.y + (exit_button.height - font_surface.get_height()) // 2))
 
     # play button
-    uiPlayButtonRect = pygame.Rect(screenRect.width - 55, 215, 50, 20)
-    pygame.draw.rect(screen, (200, 200, 200), uiPlayButtonRect, border_radius=5)
-    font_surface = font.render("Play", False, (20, 100, 20))
-    screen.blit(font_surface, (uiPlayButtonRect.x + (uiPlayButtonRect.width - font_surface.get_width()) // 2, uiPlayButtonRect.y + (uiPlayButtonRect.height - font_surface.get_height()) // 2))
-
-    # clear button
-    uiClearButtonRect = pygame.Rect(uiPlayButtonRect.left - 55, 215, 50, 20)
-    pygame.draw.rect(screen, (200, 200, 200), uiClearButtonRect, border_radius=5)
-    font_surface = font.render("Clear", False, (100, 20, 20))
-    screen.blit(font_surface, (uiClearButtonRect.x + (uiClearButtonRect.width - font_surface.get_width()) // 2, uiClearButtonRect.y + (uiClearButtonRect.height - font_surface.get_height()) // 2))
+    color = button_color(play_button, UNPRESSED_COLOR)
+    pygame.draw.rect(screen, color, play_button, border_radius=5)
+    color = UNCLICKABLE_COLOR
+    if check_playable(level):
+        color = CLICKABLE_COLOR
+    text = "Play"
+    if gameState == "playing":
+        text = "Stop"
+    font_surface = font.render(text, False, color)
+    screen.blit(font_surface, (play_button.x + (play_button.width - font_surface.get_width()) // 2, play_button.y + (play_button.height - font_surface.get_height()) // 2))
 
 def init():
-    global screen, actual_screen, actual_screenRect, clock, screenRect, FPS, font, tiles, window
+    global screen, actual_screen, actual_screenRect, clock, screenRect, FPS, font, help_font, tiles, window
+    global sheep_buttons, sheep_button_pressed, clear_button, play_button, exit_button, help_button
     pygame.init()
     screen = pygame.Surface((320, 240))
     actual_screen = pygame.display.set_mode((320, 240), pygame.RESIZABLE)
@@ -142,74 +421,298 @@ def init():
     
     pygame.display.set_caption("The Good Shepherd: Guiding His Sheep")
     clock = pygame.time.Clock()
-    FPS = 60
+    FPS = 30
     
+    load_savestate()
     tiles = load_spritesheet("spritesheet.png", 16, 16)
     font = pygame.font.SysFont(None, 24)
+    
+    sheep_buttons = []
+    for button in range(3):
+        sheep_buttons.append(pygame.Rect(5 + button * 45, 215, 40, 20))
+    sheep_button_pressed = -1
+    
+    help_button = pygame.Rect(screenRect.right - 25, 5, 20, 20)
+    
+    exit_button = pygame.Rect(screenRect.right - 55, 215, 50, 20)
+    play_button = pygame.Rect(exit_button.left - 55, 215, 50, 20)
+    clear_button = pygame.Rect(play_button.left - 55, 215, 50, 20)
 
 init()
-gameState = "editing"
+gameState = "intro"
 
 GRASS_COLOR = tiles[TILEID_GRASS].get_at((0, 0))
 
-levelPos = screenRect.midtop[0] - (len(level[1][0]) * 16) // 2, 25
-drawed_sheeps = 0
+explosion_animations = []
+
+KEY_DIRECTIONS = [
+    [pygame.K_UP, (0, -1)],
+    [pygame.K_DOWN, (0, 1)],
+    [pygame.K_LEFT, (-1, 0)],
+    [pygame.K_RIGHT, (1, 0)]
+]
+
+intro_sheep = []
+for i in range(20):
+    intro_sheep.append([random.randint(0, screenRect.width), random.randint(0, screenRect.height), random.choice(TILECOLLECTION_SHEEP)])
+
+sheep_hop_animation = 0
+
+levelPos = [0, 0]
+
+mouse_down = False
+mouse_pos = (0, 0)
+ratio = 1
+new_size = (1, 1)
+new_pos = (0, 0)
+
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            save_savestate()
             running = False
         if event.type == pygame.VIDEORESIZE:
             actual_screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
             actual_screenRect = actual_screen.get_rect()
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEMOTION:
+            pos = event.pos
+            pos = (pos[0] - new_pos[0], pos[1] - new_pos[1])
+            pos = (pos[0] / ratio, pos[1] / ratio)
+            mouse_pos = pos
+        if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
-                if uiPlayButtonRect.collidepoint(event.pos):
-                    if gameState == "editing":
-                        gameState = "playing"
+                mouse_down = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            pos = event.pos
+            pos = (pos[0] - new_pos[0], pos[1] - new_pos[1])
+            pos = (pos[0] / ratio, pos[1] / ratio)
+            if event.button == 1:
+                mouse_down = True
                 
-                # drag and drop diffent sheep types into placebale spots
+                if help_button.collidepoint(pos):
+                    play_click_sound()
+                    if gameState == "help":
+                        gameState = helpGameState
+                    else:
+                        helpGameState = gameState
+                        gameState = "help"
+                elif gameState in ("intro", "win"):
+                    if 0 < pos[0] < screenRect.width and 0 < pos[1] < screenRect.height:
+                        play_click_sound()
+                        gameState = "levels"
+                elif gameState == "levels":
+                    for rect, level_index in level_interface_buttons:
+                        if rect.collidepoint(pos) and (level_index <= unlocked_levels and level_index <= len(levels)):
+                            play_click_sound()
+                            level_num = level_index - 1
+                            level = copy.deepcopy(levels[level_num])
+                            levelPos = screenRect.midtop[0] - (len(levels[level_num][1][0]) * 16) // 2, 25
+                            drawed_sheeps = [0, 0, 0]
+                            sheep_button_pressed = -1
+                            gameState = "editing"
+                elif gameState in ("playing", "editing"):
+                    if play_button.collidepoint(pos):
+                        play_click_sound()
+                        if gameState == "editing" and check_playable(level):
+                            edit_level = copy.deepcopy(level)
+                            for y, row in enumerate(level[1]):
+                                for x, tile in enumerate(row):
+                                    if tile == TILEID_PLACEABLE:
+                                        level[1][y][x] = TILEID_GRASS
+                            gameState = "playing"
+                            play_sheep_sound(sum(drawed_sheeps))
+                        elif gameState == "playing":
+                            level = copy.deepcopy(edit_level)
+                            gameState = "editing"
+                    if exit_button.collidepoint(pos):
+                        play_click_sound()
+                        levelPos = [0, 0]
+                        gameState = "levels"
+                
                 if gameState == "editing":
-                    levelY = (event.pos[1] - levelPos[1]) // 50
-                    levelX = (event.pos[0] - levelPos[0]) // 50
+                    if clear_button.collidepoint(pos):
+                        play_click_sound()
+                        print("Clear button clicked")
+                        if gameState == "editing":
+                            level = copy.deepcopy(levels[level_num])
+                            drawed_sheeps = [0, 0, 0]
+                            sheep_button_pressed = -1
+                    
+                    # click on different sheep types into placeable spots
+                    levelY = int((pos[1] - levelPos[1]) // 16)
+                    levelX = int((pos[0] - levelPos[0]) // 16)
                     try:
-                        if level[1][levelY][levelX] == TILE_PLACEABLE and level[0][0] > drawed_sheeps:
-                            drawed_sheeps += 1
-                            level[1][levelY][levelX] = TILE_WATER
-                        elif level[1][levelY][levelX] == TILE_WATER:
-                            drawed_sheeps -= 1
-                            level[1][levelY][levelX] = TILE_PLACEABLE
+                        try_remove = True
+                        if sheep_button_pressed != -1:
+                            if level[1][levelY][levelX] == TILEID_PLACEABLE and level[0][sheep_button_pressed] > drawed_sheeps[sheep_button_pressed]:
+                                play_click_sound()
+                                print("Placing sheep")
+                                try_remove = False
+                                drawed_sheeps[sheep_button_pressed] += 1
+                                level[1][levelY][levelX] = TILECOLLECTION_SHEEP[sheep_button_pressed]
+                        if try_remove and level[1][levelY][levelX] in TILECOLLECTION_SHEEP:
+                            play_click_sound()
+                            print("Removing sheep")
+                            drawed_sheeps[get_sheep_type(level[1][levelY][levelX])] -= 1
+                            level[1][levelY][levelX] = TILEID_PLACEABLE
                     except IndexError:
                         pass
+                    
+                    for sheep_button in sheep_buttons:
+                        if sheep_button.collidepoint(pos):
+                            play_click_sound()
+                            index = sheep_buttons.index(sheep_button)
+                            if sheep_button_pressed == index:
+                                sheep_button_pressed = -1
+                            else:
+                                sheep_button_pressed = index
+
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                
-                if gameState == "playing":
-                    hitWall = False
-                    for y, row in enumerate(level[1]):
-                        for x, tile in enumerate(row):
-                            if tile == TILE_WATER:
-                                if level[1][y-1][x] != TILE_FLOOR:
-                                    hitWall = True
-                
-                # drag and drop sheep mode
-                if gameState == "editing":
-                    pass
-                
+            if gameState == "playing":
+                for direction, offset in KEY_DIRECTIONS:
+                    if event.key == direction:
+                        play_sheep_sound(sum(drawed_sheeps))
+                        sheep_hop_animation = time.time() + 0.4
+                        
+                        hit_goal = False
+                        explosions = []
+                        sheep_to_move = []
+
+                        for y, row in enumerate(level[1]):
+                            for x, tile in enumerate(row):
+                                if 0 <= tile <= 31:
+                                    target_x, target_y = x + offset[0], y + offset[1]
+                                    
+                                    if 0 <= target_y < len(level[1]) and 0 <= target_x < len(level[1][0]):
+                                        target_tile = level[1][target_y][target_x]
+                                        
+                                        if target_tile == TILEID_GOAL:
+                                            hit_goal = True
+                                        elif (target_tile != TILEID_GRASS and 32 <= target_tile):
+                                            explosions.append((time.time(), (target_x, target_y)))
+                                    sheep_to_move.append((x, y))
+
+                        if explosions:
+                            play_impact_sound()
+                            for x, y in sheep_to_move:
+                                level[1][y][x] = TILEID_SHEEP + TILECOLLECTION_DIRECTIONS[offset]
+                            explosion_animations.extend(explosions)
+                        else:
+                            if hit_goal:
+                                explosion_animations = []
+                                music_queue = []
+                                pygame.mixer.stop()
+                                play_win_sound()
+                                unlocked_levels = max(unlocked_levels, level_num + 2)
+                                levelPos = [0, 0]
+                                gameState = "win"
+                            
+                            copy_level_layer = [row[:] for row in level[1]]
+                            
+                            for x, y in sheep_to_move:
+                                copy_level_layer[y][x] = TILEID_GRASS
+                            
+                            for x, y in sheep_to_move:
+                                new_x, new_y = x + offset[0], y + offset[1]
+                                copy_level_layer[new_y][new_x] = TILEID_SHEEP + TILECOLLECTION_DIRECTIONS[offset]
+                            
+                            level[1] = copy_level_layer
+    
+    for music in music_queue:
+        if time.time() >= music[1]:
+            music[0].play()
+            music_queue.remove(music)
+    
 
     screen.fill(GRASS_COLOR)
-    draw_level(level)
-    draw_ui()
+    draw_checkerboard_grass()
     
+    if gameState in ("playing", "editing"):
+        draw_level(level)
+        draw_ui()
+    elif gameState == "levels":
+        font_surface = font.render("The Good Shepherd: Guiding His Sheep", False, (255, 255, 255))
+        pos = (screenRect.width // 2 - font_surface.get_width() // 2, 2)
+        screen.blit(font_surface, pos)
+        
+        font_surface = font.render(f"More Levels Coming Soon...", False, (255, 255, 255))
+        pos = (screenRect.width // 2 - font_surface.get_width() // 2, pos[1] + font_surface.get_height() + 3)
+        screen.blit(font_surface, pos)
+        
+        font_surface = font.render(f"There are currently {len(levels)} levels availible", False, (255, 255, 255))
+        pos = (screenRect.width // 2 - font_surface.get_width() // 2, pos[1] + font_surface.get_height() + 3)
+        screen.blit(font_surface, pos)
+        
+        for rect, level_index in level_interface_buttons:
+            color = button_color(rect, (255, 255, 255))
+            pygame.draw.rect(screen, color, rect, border_radius=5)
+            font_surface = font.render(str(level_index), False, CLICKABLE_COLOR)
+            screen.blit(font_surface, (rect.x + (rect.width - font_surface.get_width()) // 2, rect.y + (rect.height - font_surface.get_height()) // 2))
+            if unlocked_levels < level_index or len(levels) < level_index:
+                scaled_lock = pygame.transform.scale(tiles[TILEID_LOCK], (rect.width - 10, rect.height - 10))
+                screen.blit(scaled_lock, (rect.centerx - scaled_lock.get_width() // 2, rect.centery - scaled_lock.get_height() // 2))
+            elif level_index < unlocked_levels:
+                scaled_check = pygame.transform.scale(tiles[TILEID_COMPLETED], (rect.width - 10, rect.height - 10))
+                screen.blit(scaled_check, (rect.centerx - scaled_check.get_width() // 2, rect.centery - scaled_check.get_height() // 2))
+            
+    elif gameState == "win":
+        font_surface = font.render(f"You Win Level {level_num + 1}", False, (255, 255, 255))
+        screen.blit(font_surface, (screenRect.width // 2 - font_surface.get_width() // 2, screenRect.height // 2 - font_surface.get_height() // 2))
+        font_surface = font.render("Click to Continue", False, (255, 255, 255))
+        screen.blit(font_surface, (screenRect.width // 2 - font_surface.get_width() // 2, screenRect.height // 2 - font_surface.get_height() // 2 + 20))
+    elif gameState == "intro":
+        for sheep in intro_sheep:
+            sheep[0] -= 1
+            if sheep[0] < -16:
+                sheep[0] = screenRect.width
+                sheep[1] = random.randint(0, screenRect.height)
+                sheep[2] = random.choice(TILECOLLECTION_SHEEP)
+            screen.blit(tiles[sheep[2]], (sheep[0], sheep[1]))
+        
+        title_font_surface = font.render("The Good Shepherd: Guiding His Sheep", False, (255, 255, 255))
+        pos = (screenRect.width // 2 - title_font_surface.get_width() // 2, 50)
+        screen.blit(title_font_surface, pos)
+        
+        font_surface = font.render("Click to Start", False, (255, 255, 255))
+        pos = (screenRect.width // 2 - font_surface.get_width() // 2, pos[1] + title_font_surface.get_height() + 5)
+        screen.blit(font_surface, pos)
+        
+        
+        font_surface = font.render("for help in any menu or screen", False, (255, 255, 255))
+        pos = (screenRect.width // 2 - font_surface.get_width() // 2, screenRect.height - font_surface.get_height() - 5)
+        screen.blit(font_surface, pos)
+        
+        help_font_surface = font.render("Press the ? in the top right", False, (255, 255, 255))
+        pos = (screenRect.width // 2 - help_font_surface.get_width() // 2, pos[1] - font_surface.get_height() - 5)
+        screen.blit(help_font_surface, pos)
+        
+    
+    elif gameState == "help":
+        text = HELP_TEXT[helpGameState]
+        y = 5
+        for line in text:
+            font_surface = font.render(line, False, (255, 255, 255))
+            pos = (5, y)
+            screen.blit(font_surface, pos)
+            
+            y += font_surface.get_height() + 3
+    
+    draw_help_button()
+    
+    if gameState == "playing":
+        for explosion in explosion_animations:
+            if time.time() - explosion[0] < 0.5:
+                screen.blit(tiles[TILEID_EXPLOSION], (levelPos[0] + explosion[1][0] * 16, levelPos[1] + explosion[1][1] * 16))
+            else:
+                explosion_animations.remove(explosion)
+
     ratio = min(actual_screenRect.width / screenRect.width, actual_screenRect.height / screenRect.height)
     new_size = (int(screenRect.width * ratio), int(screenRect.height * ratio))
     new_pos = ((actual_screenRect.width - new_size[0]) // 2, (actual_screenRect.height - new_size[1]) // 2)
     actual_screen.blit(pygame.transform.scale(screen, new_size), new_pos)
     
     pygame.display.flip()
-
-    # E. Cap the frame rate
     clock.tick(FPS)
 
-# 5. Clean exit
 pygame.quit()
