@@ -194,14 +194,14 @@ for i, j in enumerate(levels):
 level_num = 0
 
 SHEEP_SOUNDS = [
-    pygame.mixer.Sound("sheep1.mp3"),
-    pygame.mixer.Sound("sheep2.mp3"),
-    pygame.mixer.Sound("sheep3.mp3")
+    pygame.mixer.Sound("assets/sheep1.mp3"),
+    pygame.mixer.Sound("assets/sheep2.mp3"),
+    pygame.mixer.Sound("assets/sheep3.mp3")
 ]
 
-WIN_SOUND = pygame.mixer.Sound("win.mp3")
-CLICK_SOUND = pygame.mixer.Sound("click.mp3")
-IMPACT_SOUND = pygame.mixer.Sound("impact.mp3")
+WIN_SOUND = pygame.mixer.Sound("assets/win.mp3")
+CLICK_SOUND = pygame.mixer.Sound("assets/click.mp3")
+IMPACT_SOUND = pygame.mixer.Sound("assets/impact.mp3")
 IMPACT_SOUND.set_volume(2)
 music_queue = []
 
@@ -424,7 +424,7 @@ def init():
     FPS = 30
     
     load_savestate()
-    tiles = load_spritesheet("spritesheet.png", 16, 16)
+    tiles = load_spritesheet("assets/spritesheet.png", 16, 16)
     font = pygame.font.SysFont(None, 24)
     
     sheep_buttons = []
