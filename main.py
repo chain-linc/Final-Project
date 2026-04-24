@@ -40,6 +40,22 @@ levels = [
         ],
     ],
     [
+        [4, 0, 0],
+        [
+            "#######",
+            "#*    #",
+            "#     #",
+            "# ##  #",
+            "#  #  #",
+            "#     #",
+            "# @@@ #",
+            "# @@  #",
+            "# @ @ #",
+            "##   ##",
+            "#######",
+        ],
+    ],
+    [
         [3, 0, 0],
         [
             "#######",
@@ -57,6 +73,36 @@ levels = [
     [
         [3, 0, 0],
         [
+            "#######",
+            "#  *  #",
+            "#    ##",
+            "# @@###",
+            "#    ##",
+            "# #####",
+            "#  ## #",
+            "#  @@@#",
+            "#  @@ #",
+            "#######",
+        ],
+    ],
+        [
+        [2, 0, 0],
+        [
+            "########",
+            "## *  ##",
+            "## ##  #",
+            "#  ## ##",
+            "## #   #",
+            "#@@@# ##",
+            "##@@@  #",
+            "## @  ##",
+            "## ## ##",
+            "########",
+        ],
+    ],
+    [
+        [3, 0, 0],
+        [
             "###########",
             "#  # *    #",
             "# ## ### ##",
@@ -68,14 +114,36 @@ levels = [
             "##@@ ##   #",
             "###########",
         ],
-    ]
+    ],
+    [
+        [1, 2, 0],
+        [
+            "###*###",
+            "#MMMMM#",
+            "### ###",
+            "#     #",
+            "#  @  #",
+            "# @@@ #",
+            "# @@@ #",
+            "#     #",
+            "#######",
+        ],
+    ],
+    [
+        [1, 0, 2],
+        [
+            "###*###",
+            "#MWWWM#",
+            "### ###",
+            "#     #",
+            "#  @  #",
+            "# @@@ #",
+            "# @@@ #",
+            "#     #",
+            "#######",
+        ],
+    ],
 ]
-
-TILE_WALL = "#"
-TILE_FLOOR = " "
-TILE_GOAL = "*"
-TILE_PLACEABLE = "@"
-TILE_WATER = "W"
 
 TILEID_WALL_RIGHT = 32
 TILEID_WALL_LEFT_RIGHT = 33
@@ -127,6 +195,9 @@ TILECOLLECTION_DIRECTIONS = {
     (0, 1): TILEID_OFFSET_DOWN
 }
 
+TILEMASK_MOUNTAIN = 64
+TILEMASK_WATER = 128
+
 # UP_LEFT_RIGHT_DOWN
 TILECOLLECTION_WALL = {
     "[0, 0, 0, 0]": TILEID_WALL_,
@@ -147,11 +218,12 @@ TILECOLLECTION_WALL = {
     "[1, 1, 1, 1]": TILEID_WALL_UP_LEFT_RIGHT_DOWN,
 } 
 TILE_MAP = {
-    TILE_FLOOR: TILEID_GRASS,
-    TILE_WALL: TILEID_WALL_LEFT_RIGHT,
-    TILE_GOAL: TILEID_GOAL,
-    TILE_PLACEABLE: TILEID_PLACEABLE,
-    TILE_WATER: TILEID_WATER,
+    " ": TILEID_GRASS,
+    "#": TILEID_WALL_LEFT_RIGHT,
+    "*": TILEID_GOAL,
+    "@": TILEID_PLACEABLE,
+    "M": TILEID_MOUNTAIN,
+    "W": TILEID_WATER,
 }
 
 CLICKABLE_COLOR = (20, 180, 20)
@@ -336,6 +408,16 @@ def draw_level(level):
     for y, row in enumerate(level[1]):
         for x, tile in enumerate(row):
             pos = (levelPos[0] + x * 16, levelPos[1] + y * 16)
+            water_offset = 0
+            
+            tile_mask = tile // 64
+            if tile_mask == 1:
+                screen.blit(tiles[TILEID_MOUNTAIN], pos)
+            if tile_mask == 2:
+                screen.blit(tiles[TILEID_WATER], pos)
+                water_offset = TILEID_OFFSET_WATER
+            
+            tile %= 64
             
             if tile == TILEID_GRASS:
                 continue
@@ -346,8 +428,10 @@ def draw_level(level):
                     hop_offset = TILEID_OFFSET_ANIMATION
             
                 hop_offset = round(time.time() * 3) % 2
+            else:
+                water_offset = 0
             
-            screen.blit(tiles[tile + hop_offset], pos)
+            screen.blit(tiles[tile + hop_offset + water_offset], pos)
 
 def draw_help_button():
     color = button_color(help_button, (255, 255, 255))
@@ -533,7 +617,6 @@ while running:
                 if gameState == "editing":
                     if clear_button.collidepoint(pos):
                         play_click_sound()
-                        print("Clear button clicked")
                         if gameState == "editing":
                             level = copy.deepcopy(levels[level_num])
                             drawed_sheeps = [0, 0, 0]
@@ -547,13 +630,11 @@ while running:
                         if sheep_button_pressed != -1:
                             if level[1][levelY][levelX] == TILEID_PLACEABLE and level[0][sheep_button_pressed] > drawed_sheeps[sheep_button_pressed]:
                                 play_click_sound()
-                                print("Placing sheep")
                                 try_remove = False
                                 drawed_sheeps[sheep_button_pressed] += 1
                                 level[1][levelY][levelX] = TILECOLLECTION_SHEEP[sheep_button_pressed]
                         if try_remove and level[1][levelY][levelX] in TILECOLLECTION_SHEEP:
                             play_click_sound()
-                            print("Removing sheep")
                             drawed_sheeps[get_sheep_type(level[1][levelY][levelX])] -= 1
                             level[1][levelY][levelX] = TILEID_PLACEABLE
                     except IndexError:
@@ -581,22 +662,32 @@ while running:
 
                         for y, row in enumerate(level[1]):
                             for x, tile in enumerate(row):
-                                if 0 <= tile <= 31:
+                                tile_unmasked = tile % 64
+                                tile_mask = (tile // 64) 
+                                if 0 <= tile_unmasked <= 31:
                                     target_x, target_y = x + offset[0], y + offset[1]
+                                    sheep_type = get_sheep_type(tile_unmasked)
+                                    target_mask = 0
                                     
                                     if 0 <= target_y < len(level[1]) and 0 <= target_x < len(level[1][0]):
                                         target_tile = level[1][target_y][target_x]
+                                        target_tile_mask = target_tile // 64
                                         
                                         if target_tile == TILEID_GOAL:
                                             hit_goal = True
+                                        elif sheep_type == 1 and (target_tile == TILEID_MOUNTAIN or target_tile_mask == 1):
+                                            target_mask = 1
+                                        elif sheep_type == 2 and (target_tile == TILEID_WATER or target_tile_mask == 2):
+                                            target_mask = 2
                                         elif (target_tile != TILEID_GRASS and 32 <= target_tile):
                                             explosions.append((time.time(), (target_x, target_y)))
-                                    sheep_to_move.append((x, y))
+                                    sheep_to_move.append((x, y, sheep_type, tile_mask, target_mask))
 
                         if explosions:
                             play_impact_sound()
-                            for x, y in sheep_to_move:
-                                level[1][y][x] = TILEID_SHEEP + TILECOLLECTION_DIRECTIONS[offset]
+                            for x, y, sheep_type, mask, target_mask in sheep_to_move:
+                                print(sheep_type, mask)
+                                level[1][y][x] = TILECOLLECTION_SHEEP[sheep_type] + TILECOLLECTION_DIRECTIONS[offset] + (mask * 64)
                             explosion_animations.extend(explosions)
                         else:
                             if hit_goal:
@@ -610,12 +701,18 @@ while running:
                             
                             copy_level_layer = [row[:] for row in level[1]]
                             
-                            for x, y in sheep_to_move:
-                                copy_level_layer[y][x] = TILEID_GRASS
+                            for x, y, sheep_type, mask, target_mask in sheep_to_move:
+                                if mask == 0:
+                                    copy_level_layer[y][x] = TILEID_GRASS
+                                elif mask == 1:
+                                    copy_level_layer[y][x] = TILEID_MOUNTAIN
+                                elif mask == 2:
+                                    copy_level_layer[y][x] = TILEID_WATER
                             
-                            for x, y in sheep_to_move:
+                            for x, y, sheep_type, mask, target_mask in sheep_to_move:
                                 new_x, new_y = x + offset[0], y + offset[1]
-                                copy_level_layer[new_y][new_x] = TILEID_SHEEP + TILECOLLECTION_DIRECTIONS[offset]
+                                
+                                copy_level_layer[new_y][new_x] = TILECOLLECTION_SHEEP[sheep_type] + TILECOLLECTION_DIRECTIONS[offset] + (target_mask * 64)
                             
                             level[1] = copy_level_layer
     
