@@ -28,119 +28,190 @@ levels = [
     [
         [3, 0, 0],
         [
-            "###*###",
-            "#     #",
-            "### ###",
-            "#     #",
-            "#  @  #",
-            "# @@@ #",
-            "# @@@ #",
-            "#     #",
-            "#######",
+            "##*##",
+            "#   #",
+            "## ##",
+            "# @ #",
+            "#@@@#",
+            "#@@@#",
+            "#####",
+        ],
+    ],
+    [
+        [3, 0, 0],
+        [
+            " ####",
+            "##  *",
+            "#   #",
+            "#  ##",
+            "# @ #",
+            "#@@@#",
+            "##@##",
+            " ### ",
         ],
     ],
     [
         [4, 0, 0],
         [
-            "#######",
-            "#*    #",
-            "#     #",
-            "# ##  #",
-            "#  #  #",
-            "#     #",
-            "# @@@ #",
-            "# @@  #",
-            "# @ @ #",
-            "##   ##",
-            "#######",
+            " #####",
+            "#*   #",
+            "#    #",
+            "###  #",
+            " #@@ #",
+            " #@@@#",
+            " ##@##",
+            "  ### ",
         ],
     ],
     [
-        [3, 0, 0],
+        [4, 0, 0],
         [
-            "#######",
-            "##  * #",
-            "#   # #",
-            "#  ## #",
-            "#     #",
-            "#  @  #",
-            "# @@@ #",
-            "#  @  #",
-            "#     #",
-            "#######",
-        ],
-    ],
-    [
-        [3, 0, 0],
-        [
-            "#######",
-            "#  *  #",
-            "#    ##",
-            "# @@###",
-            "#    ##",
-            "# #####",
-            "#  ## #",
+            "###### ",
+            "#    * ",
+            "#   ###",
             "#  @@@#",
-            "#  @@ #",
-            "#######",
+            "#  @@@#",
+            "## @###",
+            " ####  ",
         ],
     ],
+    [
+        [5, 0, 0],
         [
-        [2, 0, 0],
+            "##########",
+            "#@@@ #   ##",
+            "#@@@      ##",
+            "#@@@       #",
+            "####   #   #",
+            "   ######*##",
+        ],
+    ],
+    [
+        [5, 0, 0],
         [
-            "########",
-            "## *  ##",
-            "## ##  #",
-            "#  ## ##",
-            "## #   #",
-            "#@@@# ##",
-            "##@@@  #",
-            "## @  ##",
-            "## ## ##",
-            "########",
+            "   #####   ",
+            "####   ### ",
+            "#@@@     ##",
+            "#@@@      *",
+            "#@@@ #   ##",
+            "########## ",
+        ],
+    ],
+    [
+        [4, 0, 0],
+        [
+            "     ####",
+            "     *  ##",
+            "######   #",
+            "#@@@@#   #",
+            "#@@@     #",
+            "####     #",
+            "   #######",
         ],
     ],
     [
         [3, 0, 0],
         [
-            "###########",
-            "#  # *    #",
-            "# ## ### ##",
-            "#  #   #  #",
-            "## ## ### #",
-            "#     ##  #",
-            "# @@  #   #",
-            "#@@@@ # @@#",
-            "##@@ ##   #",
-            "###########",
+            "####### ",
+            "#     *#",
+            "# #    #",
+            "# # ####",
+            "#@@@#   ",
+            "#@@@#   ",
+            "#####   ",
         ],
     ],
     [
         [1, 2, 0],
         [
-            "###*###",
-            "#MMMMM#",
-            "### ###",
-            "#     #",
-            "#  @  #",
-            "# @@@ #",
-            "# @@@ #",
-            "#     #",
-            "#######",
+            "##*##",
+            "#MMM#",
+            "## ##",
+            "# @ #",
+            "#@@@#",
+            "#@@@#",
+            "#####",
+        ],
+    ],
+    [
+        [1, 4, 0],
+        [
+            " ##*###",
+            " #M MM#",
+            " #M   #",
+            " #MMM #",
+            "##    #",
+            "#M MMM#",
+            "#M MMM#",
+            "#@@@###",
+            "#@@@#  ",
+            "#@@@#  ",
+            "#####  ",
         ],
     ],
     [
         [1, 0, 2],
         [
-            "###*###",
-            "#MWWWM#",
-            "### ###",
+            "##*##",
+            "#WWW#",
+            "## ##",
+            "# @ #",
+            "#@@@#",
+            "#@@@#",
+            "#####",
+        ],
+    ],
+    [
+        [1, 0, 2],
+        [
+            " ##*#   ",
+            " # W#   ",
+            "## W#   ",
+            "#  W#   ",
+            "# W#####",
+            "# W@ @@#",
+            "#  @@@##",
+            "####@## ",
+            "   ###  ",
+        ],
+    ],
+    [
+        [1, 1, 1],
+        [
+            "##*##",
+            "#WWW#",
+            "#W M#",
+            "# @M#",
+            "#@@@#",
+            "#@@@#",
+            "#####",
+        ],
+    ],
+    [
+        [1, 1, 1],
+        [
+            "######",
+            "#    *",
+            "# WM###",
             "#     #",
-            "#  @  #",
-            "# @@@ #",
-            "# @@@ #",
-            "#     #",
-            "#######",
+            "###@@ #",
+            "  #@@@#",
+            "  ##@@#",
+            "   ####",
+        ],
+    ],
+    [
+        [1, 3, 2],
+        [
+            "###*###  ",
+            "#M# #W#  ",
+            "# #MM ###",
+            "#     WW#",
+            "#WW M   #",
+            "### #@# #",
+            "  #@@@@@#",
+            "  #@###@#",
+            "  ### ###",
         ],
     ],
 ]
@@ -185,15 +256,25 @@ TILEID_GOAL = 44
 TILEID_PLACEABLE = 45
 TILEID_LOCK = 46
 TILEID_COMPLETED = 47
+
 TILEID_DARKGRASS = 52
 
-TILECOLLECTION_SHEEP = [TILEID_SHEEP, TILEID_RAM, TILEID_SHEEP_BUOY]
-TILECOLLECTION_DIRECTIONS = {
+TILEID_ARROW_LEFT = 60
+TILEID_ARROW_RIGHT = 61
+TILEID_ARROW_UP = 62
+TILEID_ARROW_DOWN = 63
+
+COLLECTION_ARROW = {TILEID_ARROW_LEFT: "left", TILEID_ARROW_DOWN: "down", TILEID_ARROW_RIGHT: "right", TILEID_ARROW_UP: "up"}
+COLLECTION_KEY = {pygame.K_LEFT: "left", pygame.K_DOWN: "down", pygame.K_RIGHT: "right", pygame.K_UP: "up"}
+COLLECTION_DIRECTION = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
+COLLECTION_DIRECTIONS = {
     (-1, 0): TILEID_OFFSET_LEFT,
     (1, 0): TILEID_OFFSET_RIGHT,
     (0, -1): TILEID_OFFSET_UP,
     (0, 1): TILEID_OFFSET_DOWN
 }
+
+TILECOLLECTION_SHEEP = [TILEID_SHEEP, TILEID_RAM, TILEID_SHEEP_BUOY]
 
 TILEMASK_MOUNTAIN = 64
 TILEMASK_WATER = 128
@@ -233,64 +314,6 @@ UNPRESSED_COLOR = (200, 200, 200)
 HOVER_COLOR_OFFSET = (-10, -10, -10)
 DOWNPRESS_COLOR_OFFSET = (-25, -25, -25)
 
-for i, j in enumerate(levels):
-    levels[i][1] = [list(row) for row in j[1]]
-
-for i, j in enumerate(levels):
-    for y, row in enumerate(j[1]):
-        for x, tile in enumerate(row):
-            levels[i][1][y][x] = TILE_MAP[tile]
-
-for i, j in enumerate(levels):
-    for y, row in enumerate(j[1]):
-        for x, tile in enumerate(row):
-            if levels[i][1][y][x] in TILECOLLECTION_WALL.values():
-                possible_walls = [0, 0, 0, 0]
-                for j in range(4):
-                    # UP_LEFT_RIGHT_DOWN
-                    x_offset, y_offset = [(0, -1), (-1, 0), (1, 0), (0, 1)][j]
-                    index = (x + x_offset, y + y_offset)
-                    if index[0] == -1 or index[1] == -1:
-                        continue
-                    
-                    try:
-                        wall = levels[i][1][index[1]][index[0]]
-                    except IndexError: pass
-                    else:
-                        if wall in TILECOLLECTION_WALL.values():
-                            possible_walls[j] = 1
-
-                levels[i][1][y][x] = TILECOLLECTION_WALL[str(possible_walls)]
-
-
-level_num = 0
-
-SHEEP_SOUNDS = [
-    pygame.mixer.Sound("assets/sheep1.mp3"),
-    pygame.mixer.Sound("assets/sheep2.mp3"),
-    pygame.mixer.Sound("assets/sheep3.mp3")
-]
-
-WIN_SOUND = pygame.mixer.Sound("assets/win.mp3")
-CLICK_SOUND = pygame.mixer.Sound("assets/click.mp3")
-IMPACT_SOUND = pygame.mixer.Sound("assets/impact.mp3")
-IMPACT_SOUND.set_volume(2)
-music_queue = []
-
-level_interface_buttons = []
-for i in range(15):
-    w = 40
-    h = 40
-    x = i % 5
-    y = i // 5
-    x = (x * (w+20)) + w // 2
-    y = (y * (h+20)) + 60
-    level_interface_buttons.append((pygame.Rect(x, y, w, h), i + 1))
-
-unlocked_levels = 1
-
-
-
 HELP_TEXT = {
     "intro": [
         "Just click on the screen to start!"
@@ -321,8 +344,8 @@ HELP_TEXT = {
     ],
 #                                                |||||
     "playing": [
-        "Use arrow keys to move all the sheep in",
-        "that direction.",
+        "Use arrow keys or arrow buttons to",
+        "mave all of the sheep in that direction.",
         "Regular sheep can only move on grass.",
         "Mountain sheep (the ones with the horns)",
         "can only move on grass+mountains.",
@@ -343,6 +366,61 @@ HELP_TEXT = {
         "application."
     ]
 }
+
+for i, j in enumerate(levels):
+    levels[i][1] = [list(row) for row in j[1]]
+
+for i, j in enumerate(levels):
+    for y, row in enumerate(j[1]):
+        for x, tile in enumerate(row):
+            levels[i][1][y][x] = TILE_MAP[tile]
+
+for i, j in enumerate(levels):
+    for y, row in enumerate(j[1]):
+        for x, tile in enumerate(row):
+            if levels[i][1][y][x] in TILECOLLECTION_WALL.values():
+                possible_walls = [0, 0, 0, 0]
+                for j in range(4):
+                    # UP_LEFT_RIGHT_DOWN
+                    x_offset, y_offset = [(0, -1), (-1, 0), (1, 0), (0, 1)][j]
+                    index = (x + x_offset, y + y_offset)
+                    if index[0] == -1 or index[1] == -1:
+                        continue
+                    
+                    try:
+                        wall = levels[i][1][index[1]][index[0]]
+                    except IndexError: pass
+                    else:
+                        if wall in TILECOLLECTION_WALL.values():
+                            possible_walls[j] = 1
+
+                levels[i][1][y][x] = TILECOLLECTION_WALL[str(possible_walls)]
+
+level_num = 0
+
+SHEEP_SOUNDS = [
+    pygame.mixer.Sound("assets/sheep1.mp3"),
+    pygame.mixer.Sound("assets/sheep2.mp3"),
+    pygame.mixer.Sound("assets/sheep3.mp3")
+]
+
+WIN_SOUND = pygame.mixer.Sound("assets/win.mp3")
+CLICK_SOUND = pygame.mixer.Sound("assets/click.mp3")
+IMPACT_SOUND = pygame.mixer.Sound("assets/impact.mp3")
+IMPACT_SOUND.set_volume(2)
+music_queue = []
+
+level_interface_buttons = []
+for i in range(15):
+    w = 40
+    h = 40
+    x = i % 5
+    y = i // 5
+    x = (x * (w+20)) + w // 2
+    y = (y * (h+20)) + 60
+    level_interface_buttons.append((pygame.Rect(x, y, w, h), i + 1))
+
+unlocked_levels = 1
 
 def save_savestate():
     with open("savestate.txt", "w") as f:
@@ -472,6 +550,14 @@ def draw_ui():
         font_surface = font.render("Clear", False, CLICKABLE_COLOR)
         screen.blit(font_surface, (clear_button.x + (clear_button.width - font_surface.get_width()) // 2, clear_button.y + (clear_button.height - font_surface.get_height()) // 2))
 
+    elif gameState == "playing":
+        # arrow buttons
+        for i, button in enumerate(arrow_buttons):
+            color = button_color(button, UNPRESSED_COLOR)
+            pygame.draw.rect(screen, color, button, border_radius=5)
+            surface = tiles[list(COLLECTION_ARROW.keys())[i]]
+            screen.blit(surface, (button.x + (button.width - surface.get_width()) // 2, button.y + (button.height - surface.get_height()) // 2))
+
     # exit button
     color = button_color(exit_button, UNPRESSED_COLOR)
     pygame.draw.rect(screen, color, exit_button, border_radius=5)
@@ -492,7 +578,7 @@ def draw_ui():
 
 def init():
     global screen, actual_screen, actual_screenRect, clock, screenRect, FPS, font, help_font, tiles, window
-    global sheep_buttons, sheep_button_pressed, clear_button, play_button, exit_button, help_button
+    global sheep_buttons, sheep_button_pressed, clear_button, play_button, exit_button, help_button, arrow_buttons
     pygame.init()
     screen = pygame.Surface((320, 240))
     actual_screen = pygame.display.set_mode((320, 240), pygame.RESIZABLE)
@@ -521,6 +607,11 @@ def init():
     exit_button = pygame.Rect(screenRect.right - 55, 215, 50, 20)
     play_button = pygame.Rect(exit_button.left - 55, 215, 50, 20)
     clear_button = pygame.Rect(play_button.left - 55, 215, 50, 20)
+    
+    arrow_buttons = []
+    for button in range(3):
+        arrow_buttons.append(pygame.Rect(5 + button * 25, 215, 20, 20))
+    arrow_buttons.append(pygame.Rect(30, 190, 20, 20))
 
 init()
 gameState = "intro"
@@ -528,13 +619,6 @@ gameState = "intro"
 GRASS_COLOR = tiles[TILEID_GRASS].get_at((0, 0))
 
 explosion_animations = []
-
-KEY_DIRECTIONS = [
-    [pygame.K_UP, (0, -1)],
-    [pygame.K_DOWN, (0, 1)],
-    [pygame.K_LEFT, (-1, 0)],
-    [pygame.K_RIGHT, (1, 0)]
-]
 
 intro_sheep = []
 for i in range(20):
@@ -552,6 +636,8 @@ new_pos = (0, 0)
 
 running = True
 while running:
+    move_direction = None
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             save_savestate()
@@ -648,73 +734,81 @@ while running:
                                 sheep_button_pressed = -1
                             else:
                                 sheep_button_pressed = index
+                elif gameState == "playing":
+                    for i, rect in enumerate(arrow_buttons):
+                        if rect.collidepoint(pos):
+                            move_direction = list(COLLECTION_ARROW.values())[i]
 
         if event.type == pygame.KEYDOWN:
             if gameState == "playing":
-                for direction, offset in KEY_DIRECTIONS:
-                    if event.key == direction:
-                        play_sheep_sound(sum(drawed_sheeps))
-                        sheep_hop_animation = time.time() + 0.4
+                if event.key in COLLECTION_KEY:
+                    move_direction = COLLECTION_KEY[event.key]
+
+    if move_direction:
+        offset = COLLECTION_DIRECTION[move_direction]
+        
+        play_sheep_sound(sum(drawed_sheeps))
+        sheep_hop_animation = time.time() + 0.4
+        
+        hit_goal = False
+        explosions = []
+        sheep_to_move = []
+
+        for y, row in enumerate(level[1]):
+            for x, tile in enumerate(row):
+                tile_unmasked = tile % 64
+                tile_mask = (tile // 64) 
+                if 0 <= tile_unmasked <= 31:
+                    target_x, target_y = x + offset[0], y + offset[1]
+                    sheep_type = get_sheep_type(tile_unmasked)
+                    target_mask = 0
+                    
+                    if 0 <= target_y < len(level[1]) and 0 <= target_x < len(level[1][0]):
+                        target_tile = level[1][target_y][target_x]
+                        target_tile_mask = target_tile // 64
                         
-                        hit_goal = False
-                        explosions = []
-                        sheep_to_move = []
+                        if target_tile == TILEID_GOAL:
+                            hit_goal = True
+                        elif sheep_type == 1 and (target_tile == TILEID_MOUNTAIN or target_tile_mask == 1):
+                            target_mask = 1
+                        elif sheep_type == 2 and (target_tile == TILEID_WATER or target_tile_mask == 2):
+                            target_mask = 2
+                        elif (target_tile != TILEID_GRASS and 32 <= target_tile):
+                            explosions.append((time.time(), (target_x, target_y)))
+                    sheep_to_move.append((x, y, sheep_type, tile_mask, target_mask))
 
-                        for y, row in enumerate(level[1]):
-                            for x, tile in enumerate(row):
-                                tile_unmasked = tile % 64
-                                tile_mask = (tile // 64) 
-                                if 0 <= tile_unmasked <= 31:
-                                    target_x, target_y = x + offset[0], y + offset[1]
-                                    sheep_type = get_sheep_type(tile_unmasked)
-                                    target_mask = 0
-                                    
-                                    if 0 <= target_y < len(level[1]) and 0 <= target_x < len(level[1][0]):
-                                        target_tile = level[1][target_y][target_x]
-                                        target_tile_mask = target_tile // 64
-                                        
-                                        if target_tile == TILEID_GOAL:
-                                            hit_goal = True
-                                        elif sheep_type == 1 and (target_tile == TILEID_MOUNTAIN or target_tile_mask == 1):
-                                            target_mask = 1
-                                        elif sheep_type == 2 and (target_tile == TILEID_WATER or target_tile_mask == 2):
-                                            target_mask = 2
-                                        elif (target_tile != TILEID_GRASS and 32 <= target_tile):
-                                            explosions.append((time.time(), (target_x, target_y)))
-                                    sheep_to_move.append((x, y, sheep_type, tile_mask, target_mask))
-
-                        if explosions:
-                            play_impact_sound()
-                            for x, y, sheep_type, mask, target_mask in sheep_to_move:
-                                print(sheep_type, mask)
-                                level[1][y][x] = TILECOLLECTION_SHEEP[sheep_type] + TILECOLLECTION_DIRECTIONS[offset] + (mask * 64)
-                            explosion_animations.extend(explosions)
-                        else:
-                            if hit_goal:
-                                explosion_animations = []
-                                music_queue = []
-                                pygame.mixer.stop()
-                                play_win_sound()
-                                unlocked_levels = max(unlocked_levels, level_num + 2)
-                                levelPos = [0, 0]
-                                gameState = "win"
-                            
-                            copy_level_layer = [row[:] for row in level[1]]
-                            
-                            for x, y, sheep_type, mask, target_mask in sheep_to_move:
-                                if mask == 0:
-                                    copy_level_layer[y][x] = TILEID_GRASS
-                                elif mask == 1:
-                                    copy_level_layer[y][x] = TILEID_MOUNTAIN
-                                elif mask == 2:
-                                    copy_level_layer[y][x] = TILEID_WATER
-                            
-                            for x, y, sheep_type, mask, target_mask in sheep_to_move:
-                                new_x, new_y = x + offset[0], y + offset[1]
-                                
-                                copy_level_layer[new_y][new_x] = TILECOLLECTION_SHEEP[sheep_type] + TILECOLLECTION_DIRECTIONS[offset] + (target_mask * 64)
-                            
-                            level[1] = copy_level_layer
+        if explosions:
+            play_impact_sound()
+            for x, y, sheep_type, mask, target_mask in sheep_to_move:
+                print(sheep_type, mask)
+                level[1][y][x] = TILECOLLECTION_SHEEP[sheep_type] + COLLECTION_DIRECTIONS[offset] + (mask * 64)
+            explosion_animations.extend(explosions)
+        else:
+            if hit_goal:
+                explosion_animations = []
+                music_queue = []
+                pygame.mixer.stop()
+                play_win_sound()
+                unlocked_levels = max(unlocked_levels, level_num + 2)
+                levelPos = [0, 0]
+                gameState = "win"
+            
+            copy_level_layer = [row[:] for row in level[1]]
+            
+            for x, y, sheep_type, mask, target_mask in sheep_to_move:
+                if mask == 0:
+                    copy_level_layer[y][x] = TILEID_GRASS
+                elif mask == 1:
+                    copy_level_layer[y][x] = TILEID_MOUNTAIN
+                elif mask == 2:
+                    copy_level_layer[y][x] = TILEID_WATER
+            
+            for x, y, sheep_type, mask, target_mask in sheep_to_move:
+                new_x, new_y = x + offset[0], y + offset[1]
+                
+                copy_level_layer[new_y][new_x] = TILECOLLECTION_SHEEP[sheep_type] + COLLECTION_DIRECTIONS[offset] + (target_mask * 64)
+            
+            level[1] = copy_level_layer
     
     for music in music_queue:
         if time.time() >= music[1]:
@@ -733,7 +827,7 @@ while running:
         pos = (screenRect.width // 2 - font_surface.get_width() // 2, 2)
         screen.blit(font_surface, pos)
         
-        font_surface = font.render(f"More Levels Coming Soon...", False, (255, 255, 255))
+        font_surface = font.render(f"More Levels Probably Not Coming...", False, (255, 255, 255))
         pos = (screenRect.width // 2 - font_surface.get_width() // 2, pos[1] + font_surface.get_height() + 3)
         screen.blit(font_surface, pos)
         
