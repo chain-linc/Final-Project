@@ -78,8 +78,8 @@ levels = [
     [
         [5, 0, 0],
         [
-            "##########",
-            "#@@@ #   ##",
+            "##########  ",
+            "#@@@ #   ## ",
             "#@@@      ##",
             "#@@@       #",
             "####   #   #",
@@ -745,6 +745,7 @@ while running:
                     move_direction = COLLECTION_KEY[event.key]
 
     if move_direction:
+        print(f"Move {move_direction}")
         offset = COLLECTION_DIRECTION[move_direction]
         
         play_sheep_sound(sum(drawed_sheeps))
@@ -763,6 +764,8 @@ while running:
                     sheep_type = get_sheep_type(tile_unmasked)
                     target_mask = 0
                     
+                    print(target_x, target_y)
+                    
                     if 0 <= target_y < len(level[1]) and 0 <= target_x < len(level[1][0]):
                         target_tile = level[1][target_y][target_x]
                         target_tile_mask = target_tile // 64
@@ -775,6 +778,8 @@ while running:
                             target_mask = 2
                         elif (target_tile != TILEID_GRASS and 32 <= target_tile):
                             explosions.append((time.time(), (target_x, target_y)))
+                    else:
+                        print("out of range", "targets:", target_x, target_y, "level size:", len(level[1][0]), len(level[1]), "level[1][0]:", level[1][0])
                     sheep_to_move.append((x, y, sheep_type, tile_mask, target_mask))
 
         if explosions:
