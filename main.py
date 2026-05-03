@@ -1,4 +1,5 @@
 import ctypes
+from pathlib import Path
 
 import copy
 import time
@@ -12,6 +13,8 @@ try:
     ctypes.windll.user32.SetProcessDPIAware()
 except AttributeError:
     pass # Non-Windows platforms
+
+filepath = Path(__file__).parent
 
 def load_spritesheet(filename, tile_width, tile_height):
     spritesheet = pygame.image.load(filename).convert_alpha()
@@ -399,14 +402,14 @@ for i, j in enumerate(levels):
 level_num = 0
 
 SHEEP_SOUNDS = [
-    pygame.mixer.Sound("assets/sheep1.mp3"),
-    pygame.mixer.Sound("assets/sheep2.mp3"),
-    pygame.mixer.Sound("assets/sheep3.mp3")
+    pygame.mixer.Sound(filepath / "assets" / "sheep1.mp3"),
+    pygame.mixer.Sound(filepath / "assets" / "sheep2.mp3"),
+    pygame.mixer.Sound(filepath / "assets" / "sheep3.mp3")
 ]
 
-WIN_SOUND = pygame.mixer.Sound("assets/win.mp3")
-CLICK_SOUND = pygame.mixer.Sound("assets/click.mp3")
-IMPACT_SOUND = pygame.mixer.Sound("assets/impact.mp3")
+WIN_SOUND = pygame.mixer.Sound(filepath / "assets" / "win.mp3")
+CLICK_SOUND = pygame.mixer.Sound(filepath / "assets" / "click.mp3")
+IMPACT_SOUND = pygame.mixer.Sound(filepath / "assets" / "impact.mp3")
 IMPACT_SOUND.set_volume(2)
 music_queue = []
 
@@ -423,13 +426,13 @@ for i in range(15):
 unlocked_levels = 1
 
 def save_savestate():
-    with open("savestate.txt", "w") as f:
+    with open(filepath / "savestate.txt", "w") as f:
         f.write(str(unlocked_levels))
 
 def load_savestate():
     global unlocked_levels
     try:
-        with open("savestate.txt", "r") as f:
+        with open(filepath / "savestate.txt", "r") as f:
             unlocked_levels = int(f.read())
     except (FileNotFoundError, ValueError):
         save_savestate()
@@ -594,7 +597,7 @@ def init():
     FPS = 30
     
     load_savestate()
-    tiles = load_spritesheet("assets/spritesheet.png", 16, 16)
+    tiles = load_spritesheet(filepath / "assets" / "spritesheet.png", 16, 16)
     font = pygame.font.SysFont(None, 24)
     
     sheep_buttons = []
