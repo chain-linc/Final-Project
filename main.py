@@ -261,6 +261,9 @@ TILEID_LOCK = 46
 TILEID_COMPLETED = 47
 
 TILEID_DARKGRASS = 52
+TILEID_EMPTY1 = 53
+TILEID_EMPTY2 = 54
+TILEID_X = 55
 
 TILEID_ARROW_LEFT = 60
 TILEID_ARROW_RIGHT = 61
@@ -278,6 +281,7 @@ COLLECTION_DIRECTIONS = {
 }
 
 TILECOLLECTION_SHEEP = [TILEID_SHEEP, TILEID_RAM, TILEID_SHEEP_BUOY]
+TILECOLLECTION_TERRAIN = [TILEID_DARKGRASS, TILEID_WALL_LEFT_RIGHT, TILEID_MOUNTAIN, TILEID_WATER]
 
 TILEMASK_MOUNTAIN = 64
 TILEMASK_WATER = 128
@@ -312,14 +316,23 @@ TILE_MAP = {
 
 CLICKABLE_COLOR = (20, 180, 20)
 UNCLICKABLE_COLOR = (180, 20, 20)
-PRESSED_COLOR = (160, 160, 160)
-UNPRESSED_COLOR = (200, 200, 200)
+PRESSED_COLOR = (180, 180, 180)
+UNPRESSED_COLOR = (210, 210, 210)
 HOVER_COLOR_OFFSET = (-10, -10, -10)
 DOWNPRESS_COLOR_OFFSET = (-25, -25, -25)
+TEXT_COLOR = (255, 255, 255)
 
 HELP_TEXT = {
     "intro": [
-        "Just click on the screen to start!"
+        "Just click on the screen to start!",
+        "Or if your new here press the tutorial",
+        "button to learn how to play!",
+    ],
+#                                                |||||
+    "tutorial": [
+        "Follow the tutoial it will explain",
+        "everything you need to know to start",
+        "playing the game!",
     ],
 #                                                |||||
     "levels": [
@@ -328,7 +341,7 @@ HELP_TEXT = {
         "checkmark will appear on it,",
         "and the next level will be unlocked.",
         "A lock symbol will appear on locked",
-        "levels."
+        "levels.",
     ],
 #                                                |||||
     "editing": [
@@ -343,12 +356,12 @@ HELP_TEXT = {
         "Press Clear to clear all the sheep.",
         "The Play button will become green and",
         "pressable when: You place all the sheep",
-        "or there are no more 'ghost' sheep left."
+        "or there are no more 'ghost' sheep left.",
     ],
 #                                                |||||
     "playing": [
         "Use arrow keys or arrow buttons to",
-        "mave all of the sheep in that direction.",
+        "move all of the sheep in that direction.",
         "Regular sheep can only move on grass.",
         "Mountain sheep (the ones with the horns)",
         "can only move on grass+mountains.",
@@ -356,8 +369,7 @@ HELP_TEXT = {
         "preservers) can only move on",
         "grass+water.",
         "Guide at least one sheep to the staff to",
-        "win!",
-        "Press the Stop button to edit the",
+        "win! Press the Stop button to edit the",
         "formation again.",
     ],
 #                                                |||||
@@ -366,9 +378,69 @@ HELP_TEXT = {
         "You may have unlocked a new level!",
         "Also the game will save your progress",
         "automatically when you close the",
-        "application."
+        "application.",
     ]
 }
+
+TUTORIAL_TEXT = [
+#                                                |||||
+    [
+        "Welcome to the Good Shepherd!",
+        "In this game, you will be guiding your",
+        "sheep to the staff. To win, you need to",
+        "get at least one sheep to the staff.",
+    ],
+#                                                |||||
+    [
+        "These are your sheep.",
+        "You will be guiding them as their",
+        "shepherd. These sheep baaaa happily",
+        "whenever you move them.",
+    ],
+#                                                |||||
+    [
+        "There are a total of 3 types of sheep,",
+        "each are unique. This first type of sheep",
+        "is a regular sheep. The regular sheep is",
+        "your first sheep you will be entrusted ",
+        "with as a shepherd.",
+    ],
+#                                                |||||
+    [
+        "Next there is a mountain sheep which",
+        "can climb mountains, but we are not",
+        "quite sure why? Perhaps its those big",
+        "horns, but we will never know for sure.",
+    ],
+#                                                |||||
+    [
+        "Finally there is a lifevest sheep which",
+        "is a sheep that wears a lifevest.",
+        "The lifevest sheep is the only",
+        "sheep that can swim in water.",
+    ],
+#                                                |||||
+    [
+        "After being introduced to the sheep,",
+        "You will be introduced to where these",
+        "sheep can actaully go...",
+        "below is a diagram of what terrain each",
+        "sheep can go on.",
+    ],
+#                                                |||||
+    [
+        "The editor for placing sheep can be",
+        "complicated at first, but you will get",
+        "the hang of it after a few tries.",
+        "Basically you click on a sheep type to",
+        "select it and the button will be darker",
+        "than the rest, then click on a ghost",
+        "sheep to place the sheep, and click on",
+        "it again to remove it. The number on the",
+        "Sheep button represents how many",
+        "more you can place of that type of sheep.",
+    ]
+]
 
 for i, j in enumerate(levels):
     levels[i][1] = [list(row) for row in j[1]]
@@ -420,7 +492,7 @@ for i in range(15):
     x = i % 5
     y = i // 5
     x = (x * (w+20)) + w // 2
-    y = (y * (h+20)) + 60
+    y = (y * (h+20)) + 30
     level_interface_buttons.append((pygame.Rect(x, y, w, h), i + 1))
 
 unlocked_levels = 1
@@ -515,13 +587,13 @@ def draw_level(level):
             screen.blit(tiles[tile + hop_offset + water_offset], pos)
 
 def draw_help_button():
-    color = button_color(help_button, (255, 255, 255))
+    color = button_color(help_button, UNPRESSED_COLOR)
     font_surface = font.render("?", False, (0, 0, 0))
     pygame.draw.rect(screen, color, help_button, border_radius=5)
     screen.blit(font_surface, (help_button.centerx - font_surface.get_width() // 2, help_button.centery - font_surface.get_height() // 2))
 
 def draw_ui():
-    font_surface = font.render(f"Level: {level_num + 1}", False, (255, 255, 255))
+    font_surface = font.render(f"Level: {level_num + 1}", False, TEXT_COLOR)
     screen.blit(font_surface, (screenRect.width // 2 - font_surface.get_width() // 2, 5))
     
     # draw sheep buttons to drag and drop
@@ -582,6 +654,7 @@ def draw_ui():
 def init():
     global screen, actual_screen, actual_screenRect, clock, screenRect, FPS, font, help_font, tiles, window
     global sheep_buttons, sheep_button_pressed, clear_button, play_button, exit_button, help_button, arrow_buttons
+    global start_button, tutorial_button, tutorial_left_arrow, tutorial_right_arrow
     pygame.init()
     screen = pygame.Surface((320, 240))
     actual_screen = pygame.display.set_mode((320, 240), pygame.RESIZABLE)
@@ -615,6 +688,11 @@ def init():
     for button in range(3):
         arrow_buttons.append(pygame.Rect(5 + button * 25, 215, 20, 20))
     arrow_buttons.append(pygame.Rect(30, 190, 20, 20))
+    
+    start_button = pygame.Rect(screenRect.centerx - 50, screenRect.centery - 40, 100, 20)
+    tutorial_button = pygame.Rect(screenRect.centerx - 35, start_button.bottom + 5, 70, 20)
+    tutorial_left_arrow = pygame.Rect(0, 0, 0, 0)
+    tutorial_right_arrow = pygame.Rect(0, 0, 0, 0)
 
 init()
 gameState = "intro"
@@ -670,20 +748,52 @@ while running:
                     else:
                         helpGameState = gameState
                         gameState = "help"
-                elif gameState in ("intro", "win"):
+                elif gameState == "intro":
+                    if start_button.collidepoint(pos):
+                        play_click_sound()
+                        gameState = "levels"
+                    elif tutorial_button.collidepoint(pos):
+                        play_click_sound()
+                        tutorial_current = 0
+                        gameState = "tutorial"
+                elif gameState == "tutorial":
+                    if exit_button.collidepoint(pos):
+                        play_click_sound()
+                        gameState = "intro"
+                    elif tutorial_left_arrow.collidepoint(pos):
+                        play_click_sound()
+                        if tutorial_current > 0:
+                            tutorial_current -= 1
+                    elif tutorial_right_arrow.collidepoint(pos):
+                        if tutorial_current < len(TUTORIAL_TEXT) - 1:
+                            play_click_sound()
+                            tutorial_current += 1
+                        else:
+                            gameState = "intro"
+                            play_win_sound()
+                elif gameState == "win":
                     if 0 < pos[0] < screenRect.width and 0 < pos[1] < screenRect.height:
                         play_click_sound()
                         gameState = "levels"
                 elif gameState == "levels":
-                    for rect, level_index in level_interface_buttons:
-                        if rect.collidepoint(pos) and (level_index <= unlocked_levels and level_index <= len(levels)):
-                            play_click_sound()
-                            level_num = level_index - 1
-                            level = copy.deepcopy(levels[level_num])
-                            levelPos = screenRect.midtop[0] - (len(levels[level_num][1][0]) * 16) // 2, 25
-                            drawed_sheeps = [0, 0, 0]
-                            sheep_button_pressed = -1
-                            gameState = "editing"
+                    if exit_button.collidepoint(pos):
+                        play_click_sound()
+                        gameState = "intro"
+                    else:
+                        for rect, level_index in level_interface_buttons:
+                            if rect.collidepoint(pos) and (level_index <= unlocked_levels and level_index <= len(levels)):
+                                play_click_sound()
+                                level_num = level_index - 1
+                                level = copy.deepcopy(levels[level_num])
+                                levelPos = screenRect.midtop[0] - (len(levels[level_num][1][0]) * 16) // 2, 25
+                                drawed_sheeps = [0, 0, 0]
+                                
+                                for i in range(len(level[0])):
+                                    if level[0][i] != 0:
+                                        sheep_button_pressed = i
+                                        break
+                                gameState = "editing"
+                                break
                 elif gameState in ("playing", "editing"):
                     if play_button.collidepoint(pos):
                         play_click_sound()
@@ -826,21 +936,14 @@ while running:
     if gameState in ("playing", "editing"):
         draw_level(level)
         draw_ui()
+
     elif gameState == "levels":
-        font_surface = font.render("The Good Shepherd: Guiding His Sheep", False, (255, 255, 255))
-        pos = (screenRect.width // 2 - font_surface.get_width() // 2, 2)
-        screen.blit(font_surface, pos)
-        
-        font_surface = font.render(f"More Levels Probably Not Coming...", False, (255, 255, 255))
-        pos = (screenRect.width // 2 - font_surface.get_width() // 2, pos[1] + font_surface.get_height() + 3)
-        screen.blit(font_surface, pos)
-        
-        font_surface = font.render(f"There are currently {len(levels)} levels availible", False, (255, 255, 255))
-        pos = (screenRect.width // 2 - font_surface.get_width() // 2, pos[1] + font_surface.get_height() + 3)
+        font_surface = font.render("The Good Shepherd: Guiding His Sheep", False, TEXT_COLOR)
+        pos = (screenRect.width // 2 - font_surface.get_width() // 2, 5)
         screen.blit(font_surface, pos)
         
         for rect, level_index in level_interface_buttons:
-            color = button_color(rect, (255, 255, 255))
+            color = button_color(rect, UNPRESSED_COLOR)
             pygame.draw.rect(screen, color, rect, border_radius=5)
             font_surface = font.render(str(level_index), False, CLICKABLE_COLOR)
             screen.blit(font_surface, (rect.x + (rect.width - font_surface.get_width()) // 2, rect.y + (rect.height - font_surface.get_height()) // 2))
@@ -850,12 +953,18 @@ while running:
             elif level_index < unlocked_levels:
                 scaled_check = pygame.transform.scale(tiles[TILEID_COMPLETED], (rect.width - 10, rect.height - 10))
                 screen.blit(scaled_check, (rect.centerx - scaled_check.get_width() // 2, rect.centery - scaled_check.get_height() // 2))
-            
+
+        color = button_color(exit_button, UNPRESSED_COLOR)
+        pygame.draw.rect(screen, color, exit_button, border_radius=5)
+        font_surface = font.render("Exit", False, CLICKABLE_COLOR)
+        screen.blit(font_surface, (exit_button.x + (exit_button.width - font_surface.get_width()) // 2, exit_button.y + (exit_button.height - font_surface.get_height()) // 2))
+  
     elif gameState == "win":
-        font_surface = font.render(f"You Win Level {level_num + 1}", False, (255, 255, 255))
+        font_surface = font.render(f"You Win Level {level_num + 1}", False, TEXT_COLOR)
         screen.blit(font_surface, (screenRect.width // 2 - font_surface.get_width() // 2, screenRect.height // 2 - font_surface.get_height() // 2))
-        font_surface = font.render("Click to Continue", False, (255, 255, 255))
+        font_surface = font.render("Click to Continue", False, TEXT_COLOR)
         screen.blit(font_surface, (screenRect.width // 2 - font_surface.get_width() // 2, screenRect.height // 2 - font_surface.get_height() // 2 + 20))
+
     elif gameState == "intro":
         for sheep in intro_sheep:
             sheep[0] -= 1
@@ -865,29 +974,135 @@ while running:
                 sheep[2] = random.choice(TILECOLLECTION_SHEEP)
             screen.blit(tiles[sheep[2]], (sheep[0], sheep[1]))
         
-        title_font_surface = font.render("The Good Shepherd: Guiding His Sheep", False, (255, 255, 255))
-        pos = (screenRect.width // 2 - title_font_surface.get_width() // 2, 50)
+        title_font_surface = font.render("The Good Shepherd: Guiding His Sheep", False, TEXT_COLOR)
+        pos = (screenRect.width // 2 - title_font_surface.get_width() // 2, 30)
         screen.blit(title_font_surface, pos)
         
-        font_surface = font.render("Click to Start", False, (255, 255, 255))
-        pos = (screenRect.width // 2 - font_surface.get_width() // 2, pos[1] + title_font_surface.get_height() + 5)
+        start_button_color = button_color(start_button, UNPRESSED_COLOR)
+        pygame.draw.rect(screen, start_button_color, start_button, border_radius=5)
+        
+        font_surface = font.render("Start Game", False, CLICKABLE_COLOR)
+        pos = (start_button.centerx - font_surface.get_width() // 2, start_button.centery - font_surface.get_height() // 2)
         screen.blit(font_surface, pos)
         
+        tutorial_button_color = button_color(tutorial_button, UNPRESSED_COLOR)
+        pygame.draw.rect(screen, tutorial_button_color, tutorial_button, border_radius=5)
         
-        font_surface = font.render("for help in any menu or screen", False, (255, 255, 255))
-        pos = (screenRect.width // 2 - font_surface.get_width() // 2, screenRect.height - font_surface.get_height() - 5)
+        font_surface = font.render("Tutorial", False, CLICKABLE_COLOR)
+        pos = (tutorial_button.centerx - font_surface.get_width() // 2, tutorial_button.centery - font_surface.get_height() // 2)
         screen.blit(font_surface, pos)
         
-        help_font_surface = font.render("Press the ? in the top right", False, (255, 255, 255))
+        font_surface = font.render("for help in any menu or screen", False, TEXT_COLOR)
+        pos = (screenRect.width // 2 - font_surface.get_width() // 2, screenRect.bottom - font_surface.get_height() - 5)
+        screen.blit(font_surface, pos)
+        
+        help_font_surface = font.render("Press the ? in the top right", False, TEXT_COLOR)
         pos = (screenRect.width // 2 - help_font_surface.get_width() // 2, pos[1] - font_surface.get_height() - 5)
         screen.blit(help_font_surface, pos)
-        
     
+    elif gameState == "tutorial":
+        font_surface = font.render(f"Tutorial {tutorial_current + 1} / {len(TUTORIAL_TEXT)}", False, TEXT_COLOR)
+        pos = (screenRect.width // 2 - font_surface.get_width() // 2, 5)
+        screen.blit(font_surface, pos)
+        font_rect = font_surface.get_rect(topleft=pos)
+        
+        tutorial_left_arrow = pygame.Rect(font_rect.left - 25, font_rect.centery - 10, 20, 20)
+        color = button_color(tutorial_left_arrow, UNPRESSED_COLOR)
+        pygame.draw.rect(screen, color, tutorial_left_arrow, border_radius=5)
+        screen.blit(tiles[TILEID_ARROW_LEFT], (tutorial_left_arrow.x + (tutorial_left_arrow.width - tiles[TILEID_ARROW_LEFT].get_width()) // 2, tutorial_left_arrow.y + (tutorial_left_arrow.height - tiles[TILEID_ARROW_LEFT].get_height()) // 2))
+        
+        tutorial_right_arrow = pygame.Rect(font_rect.right + 5, font_rect.centery - 10, 20, 20)
+        color = button_color(tutorial_right_arrow, UNPRESSED_COLOR)
+        pygame.draw.rect(screen, color, tutorial_right_arrow, border_radius=5)
+        screen.blit(tiles[TILEID_ARROW_RIGHT], (tutorial_right_arrow.x + (tutorial_right_arrow.width - tiles[TILEID_ARROW_RIGHT].get_width()) // 2, tutorial_right_arrow.y + (tutorial_right_arrow.height - tiles[TILEID_ARROW_RIGHT].get_height()) // 2))
+        
+        text = TUTORIAL_TEXT[tutorial_current]
+        y = font_rect.bottom + 5
+        for line in text:
+            font_surface = font.render(line, False, TEXT_COLOR)
+            pos = (5, y)
+            screen.blit(font_surface, pos)
+            
+            y += font_surface.get_height() + 3
+        
+        match tutorial_current:
+            case 0:
+                # draw a staff and say "Staff"
+                pos = (screenRect.width // 2, y + 30)
+                scaled = pygame.transform.scale(tiles[TILEID_GOAL], (32, 32))
+                screen.blit(scaled, (pos[0] - 16, pos[1] - 16))
+                font_surface = font.render("Staff", False, TEXT_COLOR)
+                screen.blit(font_surface, (pos[0] - font_surface.get_width() // 2, pos[1] + 20))
+            case 1:
+                # draw the 3 sheep and say "Sheep"
+                for i, tile_id in enumerate(TILECOLLECTION_SHEEP):
+                    pos = (screenRect.width // 2 + (i - 1) * 52, y + 30)
+                    scaled = pygame.transform.scale(tiles[tile_id], (32, 32))
+                    screen.blit(scaled, (pos[0] - 16, pos[1] - 16))
+                
+                pos = (screenRect.width // 2, y + 30)
+                font_surface = font.render("Sheep", False, TEXT_COLOR)
+                screen.blit(font_surface, (pos[0] - font_surface.get_width() // 2, pos[1] + 20))
+            case 2:
+                # draw a regular sheep and say "Regular Sheep"
+                pos = (screenRect.width // 2, y + 30)
+                scaled = pygame.transform.scale(tiles[TILEID_SHEEP], (32, 32))
+                screen.blit(scaled, (pos[0] - 16, pos[1] - 16))
+                font_surface = font.render("Regular Sheep", False, TEXT_COLOR)
+                screen.blit(font_surface, (pos[0] - font_surface.get_width() // 2, pos[1] + 20))
+            case 3:
+                # draw a mountain sheep and say "Mountain Sheep"
+                pos = (screenRect.width // 2, y + 30)
+                scaled = pygame.transform.scale(tiles[TILEID_RAM], (32, 32))
+                screen.blit(scaled, (pos[0] - 16, pos[1] - 16))
+                font_surface = font.render("Mountain Sheep", False, TEXT_COLOR)
+                screen.blit(font_surface, (pos[0] - font_surface.get_width() // 2, pos[1] + 20))
+            case 4:
+                # draw a lifevest sheep and say "Lifevest Sheep"
+                pos = (screenRect.width // 2, y + 30)
+                scaled = pygame.transform.scale(tiles[TILEID_SHEEP_BUOY], (32, 32))
+                screen.blit(scaled, (pos[0] - 16, pos[1] - 16))
+                font_surface = font.render("Lifevest Sheep", False, TEXT_COLOR)
+                screen.blit(font_surface, (pos[0] - font_surface.get_width() // 2, pos[1] + 20))
+            case 5:
+                # draw a diagram of which sheep can go on which terrain
+                # type of sheep | grass | fence | mountain | water
+                diagram = [
+                    [True, False, False, False],
+                    [True, False, True, False],
+                    [True, False, False, True]
+                ]
+                pos = (screenRect.width // 2, y)
+                
+                pygame.draw.rect(screen, UNPRESSED_COLOR, ((pos[0] + (-2 * 40)) - (16 + 2), pos[1] - 2, ((5 * 40) - 8) + 4, ((3 * 40) - 8) + 4), border_radius=2)
+                
+                for i, row in enumerate(diagram):
+                    # draw sheep type
+                    pos_sheep = (pos[0] + (-2 * 40), pos[1] + i * 40)
+                    scaled = pygame.transform.scale(tiles[TILECOLLECTION_SHEEP[i]], (32, 32))
+                    screen.blit(scaled, (pos_sheep[0] - 16, pos_sheep[1]))
+                    for j, can_go in enumerate(row):
+                        if can_go:
+                            overlay = TILEID_COMPLETED
+                        else:
+                            overlay = TILEID_X
+                        
+                        pos_terrain = (pos[0] + ((j-1) * 40), pos[1] + i * 40)
+                        scaled = pygame.transform.scale(tiles[TILECOLLECTION_TERRAIN[j]], (32, 32))
+                        scaled_overlay = pygame.transform.scale(tiles[overlay], (32, 32))
+                        screen.blit(scaled, (pos_terrain[0] - 16, pos_terrain[1]))
+                        screen.blit(scaled_overlay, (pos_terrain[0] - 16, pos_terrain[1]))
+        
+        color = button_color(exit_button, UNPRESSED_COLOR)
+        pygame.draw.rect(screen, color, exit_button, border_radius=5)
+        font_surface = font.render("Exit", False, CLICKABLE_COLOR)
+        screen.blit(font_surface, (exit_button.x + (exit_button.width - font_surface.get_width()) // 2, exit_button.y + (exit_button.height - font_surface.get_height()) // 2))
+  
     elif gameState == "help":
         text = HELP_TEXT[helpGameState]
         y = 5
         for line in text:
-            font_surface = font.render(line, False, (255, 255, 255))
+            font_surface = font.render(line, False, TEXT_COLOR)
             pos = (5, y)
             screen.blit(font_surface, pos)
             
