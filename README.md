@@ -1,12 +1,20 @@
-# Final Project
-Final Project for HSC Programming Catholic Games with Python (2-D)
+# The Good Shepherd: Guiding His Sheep
+Guide your sheep to the staff.
+To win, you need to get at least one of your sheep to the staff.
 
-## Prototype
-this game is currently a prototype and not the full game
-
-![spriteheet](assets/spritesheet.png)
-
-^^^ This is my spritesheet i have made for the game it has all of the tiles i think are needed for the game
+## Screenshots
+![screenshot](screenshots/screenshot1.png)
+Intro Screen
+![screenshot](screenshots/screenshot2.png)
+Following the tutorial
+![screenshot](screenshots/screenshot3.png)
+Selecting a level
+![screenshot](screenshots/screenshot4.png)
+Editing your formation
+![screenshot](screenshots/screenshot5.png)
+playing The Good Shepherd
 
 ## How to play
-click the help buttons in the game for how to play
+1. Download as zip
+2. Extract zip file
+3. Run main.py with pygame and python 3.10+
