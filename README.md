@@ -19,6 +19,6 @@ Editing your formation
 playing The Good Shepherd
 
 ## How to play
-1. Download as zip
+1. Download as zip here https://github.com/chain-linc/Final-Project/archive/refs/heads/main.zip
 2. Extract zip file
 3. Run main.py with pygame and python 3.10+
