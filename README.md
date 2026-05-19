@@ -5,12 +5,16 @@ To win, you need to get at least one of your sheep to the staff.
 ## Screenshots
 ![screenshot](screenshots/screenshot1.png)
 Intro Screen
+
 ![screenshot](screenshots/screenshot2.png)
 Following the tutorial
+
 ![screenshot](screenshots/screenshot3.png)
 Selecting a level
+
 ![screenshot](screenshots/screenshot4.png)
 Editing your formation
+
 ![screenshot](screenshots/screenshot5.png)
 playing The Good Shepherd
 
